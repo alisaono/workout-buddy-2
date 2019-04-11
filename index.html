@@ -1,7 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Getting Started with ml5.js</title>
+    <title>6.835 Workout Buddy Prototype</title>
+
+  <header>
+  	<h1 align="center">Workout Buddy Prototype</h1>
+
+  </header>
+
+  <div>Time: <span id="time"></span></div>
+	<input type="button" value="reset" onclick="reset()">
 
     <script src="https://unpkg.com/ml5@0.1.3/dist/ml5.min.js"></script>
     <script src="./p5.min.js"></script>
@@ -9,6 +17,22 @@
     <script src="./main.js"></script>
   </head>
 
-  <body>
+  <body bgcolor="#F0F8FF" onload="show();">
+
+  	<p align="left"><i>
+  		This prototype starts the timer when you get into planking postion and the timer stops when you're out of position.
+  	</i></p>
+  	<p>This prototype recognizes:
+  		<ul>
+  			<li>Front Plank</li>
+			<li>Side Plank</li> 
+  		</ul></p>
+
+  	
+  	<img src="Front Plank.jpg" width="300" height="220" alt="Front plank" style="float: left;">
+  	<figcaption>This is a Front Plank position</figcaption>
+  	<img src="Side Plank.jpg" width="300" height="220" alt="Side plank" style="float: left;">
+  	<figcaption>This is a Side Plank position</figcaption>
+
   </body>
 </html>
