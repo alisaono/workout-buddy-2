@@ -22,6 +22,7 @@ let JOINT_INDEX = {
   'LEFT_ANKLE': 15,
   'RIGHT_ANKLE': 16
 }
+let NUM_JOINTS = 17
 
 let pose = {
   'FRONT_PLANK': 0,
@@ -31,19 +32,24 @@ let pose = {
   'LUNGES': 4
 }
 
-FRONT_PLANK = false
-SIDE_PLANK = false
-PUSH_UP = false
-CRUNCH = false
-LUNGES = false
+let FRONT_PLANK = false
+let SIDE_PLANK = false
+let PUSH_UP = false
+let CRUNCH = false
+let LUNGES = false
+
+let detectType = 'front_plank'
 
 let straight_back = 0.1
 let meh_straight = 30
 
 let video
 let poseNet
-let keypoints = []
+let keypoints = new Array(NUM_JOINTS).fill(0)
 let skeleton = []
+
+let FRAME_BUFFER_SIZE = 5
+let frameBuffer = []
 
 function setup() {
   createCanvas(VIDEO_WIDTH, VIDEO_HEIGHT)
@@ -64,7 +70,7 @@ function draw() {
 
   if (SHOW_JOINTS) {
     drawKeypoints()
-    drawSkeleton()
+    // drawSkeleton()
   }
 }
 
@@ -97,9 +103,9 @@ var clsStopwatch = function() {
     var lapTime = 0  // Time on the clock when last stopped in milliseconds
 
     var now = function() {
-        return (new Date()).getTime() 
-      } 
- 
+        return (new Date()).getTime()
+      }
+
     // Public methods
     // Start or resume
     this.start = function() {
@@ -134,16 +140,17 @@ function pad(num, size) {
 }
 
 function formatTime(time) {
-  var h = m = s = 0
+  var m = s = ms = 0
   var newTime = ''
 
-  h = Math.floor( time / (60 * 60 * 1000) )
+  // h = Math.floor( time / (60 * 60 * 1000) )
   time = time % (60 * 60 * 1000)
   m = Math.floor( time / (60 * 1000) )
   time = time % (60 * 1000)
   s = Math.floor( time / 1000 )
+  ms = time % 1000
 
-  newTime = pad(h, 2) + ':' + pad(m, 2) + ':' + pad(s, 2)
+  newTime = pad(m, 2) + ':' + pad(s, 2) + ':' + pad(ms, 2)
   return newTime
 }
 
@@ -173,14 +180,47 @@ function reset() {
 }
 
 
+function updateType() {
+  detectType = document.getElementById("exercise-type").value
+  console.log(detectType)
+}
+
+
 function onPoseUpdated(poses) {
   if (poses.length === 0) {
     console.log('No one in the frame')
     return
   }
 
-  keypoints = poses[0].pose.keypoints
+  // keypoints = poses[0].pose.keypoints
   skeleton = poses[0].skeleton
+
+  if (frameBuffer.length < FRAME_BUFFER_SIZE) {
+    // Do nothing if not enough frames in buffer
+    frameBuffer.push(poses[0].pose.keypoints)
+    return
+  }
+  frameBuffer.push(poses[0].pose.keypoints)
+  frameBuffer.shift() // Remove the oldest frame
+
+  for (let idx = 0; idx < NUM_JOINTS; idx++) {
+    let bufferedKeypoints = []
+    for (let frame of frameBuffer) {
+      bufferedKeypoints.push(frame[idx])
+    }
+    bufferedKeypoints.sort((a, b) => a.score - b.score)
+    bufferedKeypoints = bufferedKeypoints.slice(2)
+    let averageX = bufferedKeypoints.reduce((acc, cur) => acc + cur.position.x, 0) / 3
+    let averageY = bufferedKeypoints.reduce((acc, cur) => acc + cur.position.y, 0) / 3
+    keypoints[idx] = {
+      'position': {
+        'x': averageX,
+        'y': averageY
+      }
+    }
+  }
+
+  // console.log(keypoints)
 
   // TODO: Do stuff with the keypoints
   // (Ignore skeleton; it's just for drawing)
@@ -209,44 +249,40 @@ function onPoseUpdated(poses) {
   key_lankle = keypoints[JOINT_INDEX.LEFT_ANKLE]
   key_rankle = keypoints[JOINT_INDEX.RIGHT_ANKLE]
 
-  neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
 
-
-  // if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= 30 ||
-  //     abs(key_rshoulder.position.x - key_relbow.position.x) <= 30) &&
-  //   (abs(key_lelbow.position.y - key_lwrist.position.y) <= 30 ||
-  //     abs(key_relbow.position.y - key_rwrist.position.y) <= 30 ) &&
-  //   (abs(key_nose.position.y - key_lshoulder.position.y) <= 50 ||
-  //     abs(key_nose.position.y - key_rshoulder.position.y) <= 50) &&
-  //   (abs((key_rshoulder.position.y - key_rknee.position.y) / (key_rshoulder.position.x - key_rknee.position.x)) <= straight_back ||
-  //     abs((key_lshoulder.position.y - key_lknee.position.y) / (key_lshoulder.position.x - key_lknee.position.x)) <= straight_back) 
-  //   ) {
-  //   FRONT_PLANK = true
-  //   start()
-  // }
-  // else{
-  //   stop()
-  // }
-
-
-
-  if (abs(key_lshoulder.position.x - key_lelbow.position.x) <= 30 &&
-      abs(key_rshoulder.position.x - key_relbow.position.x) <= 30 &&
-      abs(key_lelbow.position.x - key_lwrist.position.x) <= 30 &&
-      abs(key_relbow.position.x - key_rwrist.position.x) <= 30 &&
-    (abs(key_nose.position.y - key_lshoulder.position.y) <= 50 ||
-      abs(key_nose.position.y - key_rshoulder.position.y) <= 50) &&
-    (abs((neck_pos[1] - key_rknee.position.y) / (neck_pos[0] - key_rknee.position.x)) <= 4 ||
-      abs((neck_pos[1] - key_lknee.position.y) / (neck_pos[0] - key_lknee.position.x)) <= 4) 
-    ) {
-    SIDE_PLANK = true
-    start()
+  if (detectType === 'front_plank') {
+    if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= 30 ||
+        abs(key_rshoulder.position.x - key_relbow.position.x) <= 30) &&
+      (abs(key_lelbow.position.y - key_lwrist.position.y) <= 30 ||
+        abs(key_relbow.position.y - key_rwrist.position.y) <= 30 ) &&
+      (abs(key_nose.position.y - key_lshoulder.position.y) <= 50 ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= 50) &&
+      (abs((key_rshoulder.position.y - key_rknee.position.y) / (key_rshoulder.position.x - key_rknee.position.x)) <= 0.1 ||
+        abs((key_lshoulder.position.y - key_lknee.position.y) / (key_lshoulder.position.x - key_lknee.position.x)) <= 0.1)
+      ) {
+      //FRONT_PLANK = true
+      start()
+    } else {
+      stop()
+    }
+  } else {
+    neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
+    if (abs(key_lshoulder.position.x - key_lelbow.position.x) <= 30 &&
+        abs(key_rshoulder.position.x - key_relbow.position.x) <= 30 &&
+        abs(key_lelbow.position.x - key_lwrist.position.x) <= 30 &&
+        abs(key_relbow.position.x - key_rwrist.position.x) <= 30 &&
+      (abs(key_nose.position.y - key_lshoulder.position.y) <= 50 ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= 50) &&
+      (abs((neck_pos[1] - key_rknee.position.y) / (neck_pos[0] - key_rknee.position.x)) <= 4 ||
+        abs((neck_pos[1] - key_lknee.position.y) / (neck_pos[0] - key_lknee.position.x)) <= 4)
+      ) {
+      //SIDE_PLANK = true
+      start()
+    }
+    else{
+      stop()
+    }
   }
-  // else{
-  //   stop()
-  // }
-
-
 }
 
 
@@ -254,12 +290,15 @@ function onPoseUpdated(poses) {
 
 
 function drawKeypoints() {
+  if (keypoints[0] === 0) {
+    return
+  }
   for (let keypoint of keypoints) {
-    if (keypoint.score > 0.2) { // only show if confidence > 20%
+    // if (keypoint.score > 0.2) { // only show if confidence > 20%
       fill(255, 0, 0)
       noStroke()
       ellipse(keypoint.position.x, keypoint.position.y, 10, 10)
-    }
+    // }
   }
 }
 
