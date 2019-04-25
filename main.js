@@ -35,13 +35,20 @@ let pose = {
 let FRONT_PLANK = false
 let SIDE_PLANK = false
 let PUSH_UP = false
-let CRUNCH = false
-let LUNGES = false
+let PUSH_DOWN = false
+let CRUNCH_UP = false
+let CRUNCH_DOWN = false
 
-let detectType = 'front_plank'
+let pushup_counter = 0
+let crunches_counter = 0
 
-let straight_back = 0.1
-let meh_straight = 30
+let detectType 
+
+
+let straight_back = 0.4
+let straight_arm = 30
+let straight_neck = 50
+
 
 let video
 let poseNet
@@ -50,6 +57,10 @@ let skeleton = []
 
 let FRAME_BUFFER_SIZE = 5
 let frameBuffer = []
+
+//document.querySelector('#dummy').dispatchEvent(new MouseEvent("click", {}))
+
+let onolo = new p5.Speech() // speech synthesis object
 
 function setup() {
   createCanvas(VIDEO_WIDTH, VIDEO_HEIGHT)
@@ -61,6 +72,8 @@ function setup() {
   poseNet.on('pose', onPoseUpdated)
 
   video.hide() // Hide the video element, and just show the canvas
+
+  onolo.speak("Welcome! Time to start working out. Please select your workout on the right.")
 }
 
 function draw() {
@@ -251,38 +264,271 @@ function onPoseUpdated(poses) {
 
 
   if (detectType === 'front_plank') {
-    if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= 30 ||
-        abs(key_rshoulder.position.x - key_relbow.position.x) <= 30) &&
-      (abs(key_lelbow.position.y - key_lwrist.position.y) <= 30 ||
-        abs(key_relbow.position.y - key_rwrist.position.y) <= 30 ) &&
-      (abs(key_nose.position.y - key_lshoulder.position.y) <= 50 ||
-        abs(key_nose.position.y - key_rshoulder.position.y) <= 50) &&
-      (abs((key_rshoulder.position.y - key_rknee.position.y) / (key_rshoulder.position.x - key_rknee.position.x)) <= 0.1 ||
-        abs((key_lshoulder.position.y - key_lknee.position.y) / (key_lshoulder.position.x - key_lknee.position.x)) <= 0.1)
+    onolo.speak("You have chosen Front Plank. Please position yourself like the one in the photo." +
+      "Arms should be shoulder length apart, upper arm should be vertical and forearm horizontal on " +
+      " the floor, making a right angle. Your back should be striaght from neck to toes.")
+    counter = 0
+
+    if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
+        abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
+      (abs(key_lelbow.position.y - key_lwrist.position.y) <= straight_arm ||
+        abs(key_relbow.position.y - key_rwrist.position.y) <= straight_arm ) &&
+      (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= straight_back ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= straight_back) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 0.2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 0.2)
       ) {
       //FRONT_PLANK = true
       start()
+      onolo.speak("Ready. Start.")
+
     } else {
-      stop()
+      stop() 
+      onolo.speak("You are not in position.")
+      if(key_rwrist.position.y-key_relbow.position.y > straight_arm){
+        onolo.speak("Please lower your right hand to the ground.")
+      }
+      if(key_lwrist.position.y-key_lelbow.position.y > straight_arm){
+        onolo.speak("Please lower your left hand to the ground.")
+      }
+      if(key_relbow.position.y-key_rwrist.position.y > straight_arm){
+        onolo.speak("Please lower your right elbow to the ground.")
+      }
+      if(key_lelbow.position.y-key_lwrist.position.y > straight_arm){
+        onolo.speak("Please lower your left elbow to the ground.")
+      }
+      if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm){
+        onolo.speak("Please make sure your left shoulder is aligned above your left elbow.")
+      }
+      if(abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
+        onolo.speak("Please make sure your right shoulder is aligned above your right elbow.")
+      }
+      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck || 
+        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck){
+        onolo.speak("Please lower your head and make sure your shoulders are at the same height.")
+      }
+      if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > straight_back ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > straight_back) {
+        onolo.speak("Please lower your hips and make sure your back is straight.")
+      }
+      if (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 0.2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 0.2) {
+        onolo.speak("Please straighten your knees.")
+      }
     }
-  } else {
+  }
+
+  if(detectType === 'side_plank') {
+    onolo.speak("You have chosen Side Plank. Please position yourself like the one in the photo." +
+      " Your arms should be straight, one holding your body up and the other reaching towards the sky." +
+      " Your back should be striaght from neck to toes.")
+
     neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
-    if (abs(key_lshoulder.position.x - key_lelbow.position.x) <= 30 &&
-        abs(key_rshoulder.position.x - key_relbow.position.x) <= 30 &&
-        abs(key_lelbow.position.x - key_lwrist.position.x) <= 30 &&
-        abs(key_relbow.position.x - key_rwrist.position.x) <= 30 &&
-      (abs(key_nose.position.y - key_lshoulder.position.y) <= 50 ||
-        abs(key_nose.position.y - key_rshoulder.position.y) <= 50) &&
+    if (abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm &&
+        abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm &&
+        abs(key_lelbow.position.x - key_lwrist.position.x) <= straight_arm &&
+        abs(key_relbow.position.x - key_rwrist.position.x) <= straight_arm &&
+      (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck &&
+        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
       (abs((neck_pos[1] - key_rknee.position.y) / (neck_pos[0] - key_rknee.position.x)) <= 4 ||
         abs((neck_pos[1] - key_lknee.position.y) / (neck_pos[0] - key_lknee.position.x)) <= 4)
       ) {
       //SIDE_PLANK = true
       start()
+      onolo.speak("Ready. Start.")
     }
     else{
       stop()
+      onolo.speak("You are not in position.")
+      if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm){
+        onolo.speak("Please straighten your upper left arm. Make sure your shoulder and elbow are aligned right above one another.")
+      }
+      if(abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
+        onolo.speak("Please straighten your upper right arm. Make sure your shoulder and elbow are aligned right above one another.")
+      }
+      if(abs(key_lelbow.position.x - key_lwrist.position.x) > straight_arm){
+        onolo.speak("Please straighten your left forearm. Make sure your elbow and wrist are aligned right above one another.")
+      }
+      if(abs(key_relbow.position.x - key_rwrist.position.x) > straight_arm) {
+        onolo.speak("Please straighten your right forearm. Make sure your elbow and wrist are aligned right above one another.")        
+      }
+      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck){
+        onolo.speak("Please make sure your shoulders are aligned above one another.")
+      }
+      if(abs((neck_pos[1] - key_rknee.position.y) / (neck_pos[0] - key_rknee.position.x)) > 4 ||
+        abs((neck_pos[1] - key_lknee.position.y) / (neck_pos[0] - key_lknee.position.x)) > 4){
+        onolo.speak("Please straighten your back.")
+      }
     }
   }
+
+  if(detectType === 'pushup'){
+    onolo.speak("You have chosen Pushup. Please position yourself like the one in the photo. Start in the down position please." +
+      " Your arms should be bent and shoulder length apart, legs and back straight and head looking striaght down." +
+      " For the up position, please have arms straight out in front of you and for the down position, just lower your body to" +
+      " the ground while only bending your arms.")
+
+    onolo.speak("Ready. Start.")
+    counter = 0
+    sets_counter = 1
+    neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
+    
+    if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
+        abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
+      (abs(key_lelbow.position.x - key_lwrist.position.x) <= straight_arm ||
+        abs(key_relbow.position.x - key_rwrist.position.x) <= straight_arm ) &&
+      (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= 0.5 ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= 0.5) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 0.4 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 0.4)
+      ) {
+      //PUSH_UP = true
+      onolo.speak("Up.")
+      //Maybe put a pause or delay to allow the person to go up
+      counter += 1 
+    } else {
+      //say that you're not in position
+      onolo.speak("You are not in the up position.")
+      if(key_rwrist.position.y-key_relbow.position.y > straight_arm){
+        onolo.speak("Please lower your right hand to the ground.")
+      }
+      if(key_lwrist.position.y-key_lelbow.position.y > straight_arm){
+        onolo.speak("Please lower your left hand to the ground.")
+      }
+      if(key_relbow.position.x-key_rwrist.position.x > straight_arm){
+        onolo.speak("Please make sure your right elbow is over your right wrist in the up position.")
+      }
+      if(key_lelbow.position.x-key_lwrist.position.x > straight_arm){
+        onolo.speak("Please make sure your left elbow is over your left wrist in the up position.")
+      }
+      if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm){
+        onolo.speak("Please make sure your left shoulder is aligned above your left elbow.")
+      }
+      if(abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
+        onolo.speak("Please make sure your right shoulder is aligned above your right elbow.")
+      }
+      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck || 
+        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck){
+        onolo.speak("Please lower your head and make sure your shoulders are at the same height.")
+      }
+      if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > straight_back ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > straight_back) {
+        onolo.speak("Please lower your hips and make sure your back is straight.")
+      }
+      if (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 0.2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 0.2) {
+        onolo.speak("Please straighten your knees.")
+      }
+    }
+
+    if ((abs(key_lshoulder.position.y - key_lelbow.position.y) <= 20 ||
+        abs(key_rshoulder.position.y - key_relbow.position.y) <= 20) &&
+      (abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
+        abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
+      (abs(key_lelbow.position.x - key_lwrist.position.x) <= straight_arm ||
+        abs(key_relbow.position.x - key_rwrist.position.x) <= straight_arm ) &&
+      (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= 0.3 ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= 0.3) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 0.2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 0.2)
+      ) {
+      //PUSH_DOWN = true
+      onolo.speak("Down. " + counter + " pushup.")
+      if(counter === 10) {
+        onolo.speak("You have done " + sets_counter + " pushup.")
+        sets_counter += 1
+      }
+    } else {
+      //say that you're not in position
+      onolo.speak("You are not in the down position.")
+      if(key_rwrist.position.y-key_relbow.position.y > straight_arm){
+        onolo.speak("Please lower your right hand to the ground.")
+      }
+      if(key_lwrist.position.y-key_lelbow.position.y > straight_arm){
+        onolo.speak("Please lower your left hand to the ground.")
+      }
+      if(key_relbow.position.x-key_rwrist.position.x > straight_arm){
+        onolo.speak("Please make sure your right elbow is over your right wrist in the down position.")
+      }
+      if(key_lelbow.position.x-key_lwrist.position.x > straight_arm){
+        onolo.speak("Please make sure your left elbow is over your left wrist in the down position.")
+      }
+      if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm){
+        onolo.speak("Please make sure your left shoulder is aligned above your left elbow.")
+      }
+      if(abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
+        onolo.speak("Please make sure your right shoulder is aligned above your right elbow.")
+      }
+      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck || 
+        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck){
+        onolo.speak("Please lower your head and make sure your shoulders are at the same height.")
+      }
+      if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > straight_back ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > straight_back) {
+        onolo.speak("Please lower your hips and make sure your back is straight.")
+      }
+      if (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 0.2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 0.2) {
+        onolo.speak("Please straighten your knees.")
+      }
+    }
+
+  }
+
+  if(detectType === 'crunch'){
+    sets_counter = 1
+    neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
+    if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= 4 ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= 4) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 2) &&
+      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= 2 ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= 2)
+      ) {
+      //CRUNCH_UP = true
+    onolo.speak("Up.")
+    } else {
+      //say that you're not in position
+      (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= 0.1 ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= 0.1) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 2) &&
+      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= 2 ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= 2)
+    }
+
+    if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= 0.1 ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= 0.1) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 2) &&
+      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= 2 ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= 2)
+      ) {
+      //CRUNCH_DOWN = true
+      onolo.speak("Down. " + counter + " pushup.")
+      if(counter === 10) {
+        onolo.speak("You have done " + sets_counter + " pushup.")
+        sets_counter += 1
+      }
+    } else {
+      //say that you're not in position
+    }
+
+  }
+
 }
 
 
