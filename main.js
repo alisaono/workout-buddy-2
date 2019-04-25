@@ -440,9 +440,9 @@ function onPoseUpdated(poses) {
         abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 0.2)
       ) {
       //PUSH_DOWN = true
-      onolo.speak("Down. " + counter + " pushup.")
+      onolo.speak("Down. " + counter + " pushups.")
       if(counter === 10) {
-        onolo.speak("You have done " + sets_counter + " pushup.")
+        onolo.speak("You have done " + sets_counter + " sets of pushups.")
         sets_counter += 1
       }
     } else {
@@ -483,6 +483,11 @@ function onPoseUpdated(poses) {
   }
 
   if(detectType === 'crunch'){
+        onolo.speak("You have chosen Crunches. Please position yourself like the one in the photo. Start in the down position please." +
+      " You should be laying down on the floor face up and knees bent." +
+      " For the up position, please keep your knees in place and raise your upper body 45 degrees upward.")
+
+    onolo.speak("Ready. Start.")
     sets_counter = 1
     neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
     if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
@@ -498,14 +503,23 @@ function onPoseUpdated(poses) {
     onolo.speak("Up.")
     } else {
       //say that you're not in position
-      (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
-        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
-      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= 0.1 ||
-        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= 0.1) &&
-      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 2 ||
-        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 2) &&
-      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= 2 ||
-        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= 2)
+      onolo.speak("You are not in the up position.")
+      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck) {
+        onolo.speak("Please lower your head and make sure your shoulders are at the same height.")
+      }
+      if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > 4 ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > 4) {
+        onolo.speak("Please do not go all the way up, only 45 degrees, and make sure your back is straight.")
+      }
+      if(abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 2) {
+        onolo.speak("Please raise your knees to a comfortable bent height.")
+      }
+      if(abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) > 2 ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) > 2){
+        onolo.speak("Please lower your knees.")
+      }
     }
 
     if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
@@ -518,13 +532,30 @@ function onPoseUpdated(poses) {
         abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= 2)
       ) {
       //CRUNCH_DOWN = true
-      onolo.speak("Down. " + counter + " pushup.")
+      onolo.speak("Down. " + counter + " crunches.")
       if(counter === 10) {
-        onolo.speak("You have done " + sets_counter + " pushup.")
+        onolo.speak("You have done " + sets_counter + " sets of crunches.")
         sets_counter += 1
       }
     } else {
       //say that you're not in position
+      onolo.speak("You are not in the down position.")
+      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck) {
+        onolo.speak("Please lower your head and make sure your shoulders are at the same height.")
+      }
+      if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > 0.1 ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > 0.1) {
+        onolo.speak("Please lay all the way down.")
+      }
+      if(abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 2) {
+        onolo.speak("Please raise your knees to a comfortable bent height.")
+      }
+      if(abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) > 2 ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) > 2){
+        onolo.speak("Please lower your knees.")
+      }
     }
 
   }
