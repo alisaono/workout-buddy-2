@@ -619,23 +619,37 @@ function onPoseUpdated(poses) {
     onolo.speak("Up.")
     } else {
       //say that you're not in position
-      onolo.speak("You are not in the up position.")
+      message = []
       if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
         abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck) {
-        onolo.speak("Please lower your head and make sure your shoulders are at the same height.")
+        message.push("lower your head")
+        message.push("make sure your shoulders are at the same height")
       }
       if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > 4 ||
         abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > 4) {
-        onolo.speak("Please do not go all the way up, only 45 degrees, and make sure your back is straight.")
+        message.push("do not go all the way up, but only 45 degrees")
+        message.push("make sure your back is straight")
       }
       if(abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 2 ||
         abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 2) {
-        onolo.speak("Please raise your knees to a comfortable bent height.")
+        message.push("raise your knees to a comfortable bent height")
       }
       if(abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) > 2 ||
         abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) > 2){
-        onolo.speak("Please lower your knees.")
+        message.push("lower your knees")
       }
+
+      spoken_message = "You are not in position. "
+      if (message.length === 1) {
+        spoken_message += "Please " + message[0]
+      } else if (message.length > 1) {
+        spoken_message += "Please "
+        for (let i = 0; i < message.length - 1; i++) {
+          spoken_message += message[i] + ", "
+        }
+        spoken_message += "and " + message[message.length - 1]
+      }
+      onolo.speak(spoken_message)
     }
 
     if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
@@ -655,23 +669,36 @@ function onPoseUpdated(poses) {
       }
     } else {
       //say that you're not in position
-      onolo.speak("You are not in the down position.")
+      message = []
       if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
         abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck) {
-        onolo.speak("Please lower your head and make sure your shoulders are at the same height.")
+        message.push("lower your head")
+        message.push("make sure your shoulders are at the same height")
       }
       if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > 0.1 ||
         abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > 0.1) {
-        onolo.speak("Please lay all the way down.")
+        message.push("please lay all the way down")
       }
       if(abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 2 ||
         abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 2) {
-        onolo.speak("Please raise your knees to a comfortable bent height.")
+        message.push("raise your knees to a comfortable bent height")
       }
       if(abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) > 2 ||
         abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) > 2){
-        onolo.speak("Please lower your knees.")
+        message.push("lower your knees")
       }
+
+      spoken_message = "You are not in position. "
+      if (message.length === 1) {
+        spoken_message += "Please " + message[0]
+      } else if (message.length > 1) {
+        spoken_message += "Please "
+        for (let i = 0; i < message.length - 1; i++) {
+          spoken_message += message[i] + ", "
+        }
+        spoken_message += "and " + message[message.length - 1]
+      }
+      onolo.speak(spoken_message)
     }
 
   }
