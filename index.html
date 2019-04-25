@@ -21,31 +21,23 @@
       <p>
         Workout:
         <select id="exercise-type" onchange="updateType()">
-        	<option value="">--Please choose a workout--</option>
+        	<option value="" selected>--Please choose a workout--</option>
          	<option value="front_plank">Front Plank</option>
-          	<option value="side_plank">Side Plank</option>
-          	<option value="pushup">Push-ups</option>
-          	<option value="crunch">Crunches</option>
+        	<option value="side_plank">Side Plank</option>
+        	<option value="pushup">Push-ups</option>
+        	<option value="crunch">Crunches</option>
         </select>
       </p>
-<!--       <ul>
-        <li>
- -->          Front Plank<br/>
-          <img src="Front Plank.jpg" width="300" height="220" alt="Front plank">
-<!--         </li>
-        <li>
- -->          Side Plank<br/>
-          <img src="Side Plank.jpg" width="300" height="220" alt="Side plank">
-<!--         </li>
-        <li>
- -->          Push-ups<br/>
-          <img src="Push-ups.gif" width="300" height="220" alt="Push-ups">
-<!--         </li>
-        <li>
- -->          Crunches<br/> 
-          <img src="Crunches.gif" width="300" height="220" alt="Crunches">
-<!--         </li>
-      </ul>
- -->    </div>
+      <div id="exercise-details" style="display: none;">
+        <p id="duration-input">
+          Duration: <input type="number" value="30"> seconds
+        </p>
+        <p id="reps-input">
+          Number of reps: <input type="number" value="5">
+        </p>
+        <img id="sample-image" src="" style="width: 330px; height: 220px;">
+        <input type="button" value="Start" onclick="startWorkout()">
+      </div>
+    </div>
   </body>
 </html>
