@@ -243,6 +243,7 @@ function startWorkout() {
         " Your arms should be straight, one holding your body up and the other reaching towards the sky." +
         " Your back should be striaght from neck to toes.")
     }
+    reset() // timer
     detectType = type
     detectDuration = duration
     console.log(detectType, detectDuration)
@@ -265,6 +266,8 @@ function startWorkout() {
     } else {
       onolo.speak("You have chosen Crunch.")
     }
+    counter = 0 // reset rep count
+    sets_counter = 0 // reset set count
     detectType = type
     detectReps = parseInt(reps)
     console.log(detectType, detectReps)
@@ -334,10 +337,7 @@ function onPoseUpdated(poses) {
   key_lankle = keypoints[JOINT_INDEX.LEFT_ANKLE]
   key_rankle = keypoints[JOINT_INDEX.RIGHT_ANKLE]
 
-
   if (detectType === 'front_plank') {
-    counter = 0
-
     if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
         abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
       (abs(key_lelbow.position.y - key_lwrist.position.y) <= straight_arm ||
@@ -351,28 +351,40 @@ function onPoseUpdated(poses) {
       ) {
       //FRONT_PLANK = true
       start()
-      onolo.speak("Ready. Start.")
-
+      if (x.time() >= detectDuration * 1000) {
+        onolo.speak("Good job! You have done " + detectDuration + " seconds of front plank.")
+        stop()
+        detectType = "" // reset
+      }
     } else {
       stop()
       message = []
-      if(key_rwrist.position.y-key_relbow.position.y > straight_arm){
-        message.push("lower your right hand to the ground")
+      // if(key_rwrist.position.y-key_relbow.position.y > straight_arm){
+      //   message.push("lower your right hand to the ground")
+      // }
+      // if(key_lwrist.position.y-key_lelbow.position.y > straight_arm){
+      //   message.push("lower your left hand to the ground")
+      // }
+      if(key_rwrist.position.y-key_relbow.position.y > straight_arm && key_lwrist.position.y-key_lelbow.position.y > straight_arm){
+        message.push("lower your hands to the ground")
       }
-      if(key_lwrist.position.y-key_lelbow.position.y > straight_arm){
-        message.push("lower your left hand to the ground")
+      // if(key_relbow.position.y-key_rwrist.position.y > straight_arm){
+      //   message.push("lower your right elbow to the ground")
+      // }
+      // if(key_lelbow.position.y-key_lwrist.position.y > straight_arm){
+      //   message.push("lower your left elbow to the ground")
+      // }
+      if(key_relbow.position.y-key_rwrist.position.y > straight_arm && key_lelbow.position.y-key_lwrist.position.y > straight_arm){
+        message.push("lower your elbows to the ground")
       }
-      if(key_relbow.position.y-key_rwrist.position.y > straight_arm){
-        message.push("lower your right elbow to the ground")
-      }
-      if(key_lelbow.position.y-key_lwrist.position.y > straight_arm){
-        message.push("lower your left elbow to the ground")
-      }
-      if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm){
-        message.push("make sure your left shoulder is aligned above your left elbow")
-      }
-      if(abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
-        message.push("make sure your right shoulder is aligned above your right elbow")
+      // if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm){
+      //   message.push("make sure your left shoulder is aligned above your left elbow")
+      // }
+      // if(abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
+      //   message.push("make sure your right shoulder is aligned above your right elbow")
+      // }
+      if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm && abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
+        message.push("make sure your shoulders are aligned above your right elbow")
       }
       if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
         abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck){
@@ -387,7 +399,7 @@ function onPoseUpdated(poses) {
         message.push("straighten your knees")
       }
 
-      spoken_message = "You are not in position. "
+      spoken_message = ""
       if (message.length === 1) {
         spoken_message += "Please " + message[0]
       } else if (message.length > 1) {
@@ -414,7 +426,11 @@ function onPoseUpdated(poses) {
       ) {
       //SIDE_PLANK = true
       start()
-      onolo.speak("Ready. Start.")
+      if (x.time() >= detectDuration * 1000) {
+        onolo.speak("Good job! You have done " + detectDuration + " seconds of front plank.")
+        stop()
+        detectType = "" // reset
+      }
     }
     else{
       stop()
@@ -459,9 +475,6 @@ function onPoseUpdated(poses) {
   }
 
   if(detectType === 'pushup'){
-    onolo.speak("Ready. Start.")
-    counter = 0
-    sets_counter = 1
     neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
 
     if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||

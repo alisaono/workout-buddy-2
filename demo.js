@@ -353,6 +353,7 @@ function onPoseUpdated(poses) {
       (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= straight_leg_up ||
         abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= straight_leg_up)
       ) {
+<<<<<<< HEAD
       console.log(`from ${state} to up`)
       if (state === "down") {
         increCounter()
@@ -361,6 +362,57 @@ function onPoseUpdated(poses) {
         } else {
           isWorkoutComplete = true
           onolo.speak("Good job! You have done " + detectReps + " pushups.")
+=======
+      //PUSH_DOWN = true
+      onolo.speak("Down. " + counter + " pushups.")
+      if(counter === 10) {
+        onolo.speak("You have done " + sets_counter + " sets of pushups.")
+        sets_counter += 1
+      }
+    } else {
+      //say that you're not in position
+      message = []
+      if(key_rwrist.position.y-key_relbow.position.y > straight_arm){
+        message.push("lower your right hand to the ground")
+      }
+      if(key_lwrist.position.y-key_lelbow.position.y > straight_arm){
+        message.push("lower your left hand to the ground")
+      }
+      if(key_relbow.position.x-key_rwrist.position.x > straight_arm){
+        message.push("make sure your right elbow is over your right wrist in the down position")
+      }
+      if(key_lelbow.position.x-key_lwrist.position.x > straight_arm){
+        message.push("make sure your left elbow is over your left wrist in the down positio")
+      }
+      if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm){
+        message.push("make sure your left shoulder is aligned above your left elbow")
+      }
+      if(abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
+        message.push("make sure your right shoulder is aligned above your right elbow")
+      }
+      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck){
+        message.push("lower your head")
+        message.push("make sure your shoulders are at the same height")
+      }
+      if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > straight_back ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > straight_back) {
+        message.push("lower your hips")
+        message.push("make sure your back is straight")
+      }
+      if (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 0.2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 0.2) {
+        message.push("straighten your knees")
+      }
+
+      spoken_message = "You are not in position. "
+      if (message.length === 1) {
+        spoken_message += "Please " + message[0]
+      } else if (message.length > 1) {
+        spoken_message += "Please "
+        for (let i = 0; i < message.length - 1; i++) {
+          spoken_message += message[i] + ", "
+>>>>>>> 493e52021c27a8d96c4dba1b25f6634fd35de644
         }
       }
       state = "up"
