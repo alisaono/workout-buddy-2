@@ -1,10 +1,10 @@
 let DEBUG = true
-let straight_back_up = 0.5
-let straight_back_down = 0.3
-let straight_leg_up = 0.4
-let straight_leg_down = 0.2
-let straight_arm = 30
-let straight_neck = 50
+let straight_back_up = 2
+let straight_back_down = 1
+let straight_leg_up = 10
+let straight_leg_down = .4
+let straight_arm = 50
+let straight_neck = 80
 
 let VIDEO_WIDTH = 800
 let VIDEO_HEIGHT = 600
@@ -156,26 +156,7 @@ function onPoseUpdated(poses) {
     console.log(`|hip-knee slope| Right: ${abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x))}, Left: ${abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x))}`)
   }
 
-  if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
-      abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
-    (abs(key_lelbow.position.x - key_lwrist.position.x) <= straight_arm ||
-      abs(key_relbow.position.x - key_rwrist.position.x) <= straight_arm ) &&
-    (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
-      abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
-    (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= straight_back_up ||
-      abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= straight_back_up) &&
-    (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= straight_leg_up ||
-      abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= straight_leg_up)
-    ) {
-    console.log("detected up")
-    if (state !== "up") { // change label
-      state = "up"
-      typeUpEl.style.display = 'block'
-      typeDownEl.style.display = 'none'
-      typeNoneEl.style.display = 'none'
-    }
-    return
-  }
+  
   if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
       abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
     (abs(key_lelbow.position.x - key_lwrist.position.x) <= straight_arm ||
@@ -196,6 +177,28 @@ function onPoseUpdated(poses) {
     }
     return
   }
+
+  if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
+      abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
+    (abs(key_lelbow.position.x - key_lwrist.position.x) <= straight_arm ||
+      abs(key_relbow.position.x - key_rwrist.position.x) <= straight_arm ) &&
+    (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+      abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+    (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= straight_back_up ||
+       abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= straight_back_up) &&
+    (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= straight_leg_up ||
+      abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= straight_leg_up)
+    ) {
+    console.log("detected up")
+    if (state !== "up") { // change label
+      state = "up"
+      typeUpEl.style.display = 'block'
+      typeDownEl.style.display = 'none'
+      typeNoneEl.style.display = 'none'
+    }
+    return
+  }
+
   if (state !== "none") { // change label
     state = "none"
     typeUpEl.style.display = 'none'
