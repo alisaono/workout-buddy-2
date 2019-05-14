@@ -63,14 +63,14 @@ setInterval(function() {
 }, TIMER_INTERVAL)
 
 function increCounter() {
-  counter += 1
-  counter.textContent = counter
+  currCount += 1
+  counter.textContent = currCount
 }
 
 function resetCounter() {
   state = ""
-  counter = 0
-  counter.textContent = counter
+  currCount = 0
+  counter.textContent = currCount
 }
 
 let detectType = ""
@@ -78,8 +78,12 @@ let detectDuration = 0
 let detectReps = 0
 
 let straight_back = 0.4
-let straight_arm = 30
-let straight_neck = 50
+let straight_back_up = 2
+let straight_back_down = 1
+let straight_leg_up = 10
+let straight_leg_down = .4
+let straight_arm = 50
+let straight_neck = 80
 
 let video
 let poseNet
@@ -179,6 +183,7 @@ function startWorkout() {
     }
     detectType = type
     detectDuration = duration
+    isWorkoutComplete = false
     console.log(detectType, detectDuration)
 
   } else if (type === "pushup" || type === "crunch") {
@@ -199,9 +204,9 @@ function startWorkout() {
     } else {
       onolo.speak("You have chosen Crunch.")
     }
-    currCount = 0
     detectType = type
     detectReps = parseInt(reps)
+    isWorkoutComplete = false
     console.log(detectType, detectReps)
   }
 }
