@@ -402,7 +402,7 @@ function onPoseUpdated(poses) {
         message.push("lower your right hand to the ground")
       }
       if(key_lwrist.position.y-key_lelbow.position.y > straight_arm){
-        messga.epush("lower your left hand to the ground")
+        message.push("lower your left hand to the ground")
       }
       if(key_relbow.position.x-key_rwrist.position.x > straight_arm){
         message.push("make sure your right elbow is over your right wrist in the down position")
