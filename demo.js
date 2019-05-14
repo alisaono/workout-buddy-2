@@ -89,7 +89,7 @@ function setup() {
 
   video.hide() // Hide the video element, and just show the canvas
 
-  onolo.speak("Welcome! Time to start working out. Please select your workout on the right.")
+  // onolo.speak("Welcome! Time to start working out. Please select your workout on the right.")
 }
 
 function draw() {
@@ -107,10 +107,14 @@ function onModelReady() {
 }
 
 function updateType() {
+  resetTimer()
+
   let newType = document.getElementById("exercise-type").value
   if (newType === "") {
     detectType = ""
     document.getElementById("exercise-details").style.display = "none"
+    document.getElementById("timer-wrapper").style.display = 'none'
+    document.getElementById("reps-wrapper").style.display = 'none'
     return
   }
 
@@ -122,6 +126,8 @@ function updateType() {
     }
     document.getElementById("duration-input").style.display = "block"
     document.getElementById("reps-input").style.display = "none"
+    document.getElementById("timer-wrapper").style.display = 'block'
+    document.getElementById("reps-wrapper").style.display = 'none'
   }
 
   if (newType === "pushup" || newType === "crunch") {
@@ -132,6 +138,8 @@ function updateType() {
     }
     document.getElementById("duration-input").style.display = "none"
     document.getElementById("reps-input").style.display = "block"
+    document.getElementById("timer-wrapper").style.display = 'none'
+    document.getElementById("reps-wrapper").style.display = 'block'
   }
 
   document.getElementById("exercise-details").style.display = "block"
@@ -141,7 +149,6 @@ function startWorkout() {
   let type = document.getElementById("exercise-type").value
 
   if (type === "front_plank" || type === "side_plank") {
-    document.getElementById("timer-wrapper").style.display = 'block'
     let duration = parseFloat(document.querySelector("#duration-input input").value)
     if (duration <= 0) {
       onolo.speak("Please choose a valid duration. Duration must be a positive number.")
@@ -156,7 +163,6 @@ function startWorkout() {
         " Your arms should be straight, one holding your body up and the other reaching towards the sky." +
         " Your back should be striaght from neck to toes.")
     }
-    resetTimer()
     detectType = type
     detectDuration = duration
     console.log(detectType, detectDuration)
