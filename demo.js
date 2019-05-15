@@ -24,13 +24,13 @@ let JOINT_INDEX = {
 }
 let NUM_JOINTS = 17
 
-let pose = {
-  'FRONT_PLANK': 0,
-  'SIDE_PLANK': 1,
-  'PUSH_UP': 2,
-  'CRUNCH': 3,
-  'LUNGES': 4
-}
+let straight_back = 0.4
+let straight_back_up = 2
+let straight_back_down = 1
+let straight_leg_up = 10
+let straight_leg_down = .4
+let straight_arm = 50
+let straight_neck = 80
 
 let currTime = 0 // ms
 let currCount = 0 // reps
@@ -77,18 +77,9 @@ let detectType = ""
 let detectDuration = 0
 let detectReps = 0
 
-let straight_back = 0.4
-let straight_back_up = 2
-let straight_back_down = 1
-let straight_leg_up = 10
-let straight_leg_down = .4
-let straight_arm = 50
-let straight_neck = 80
-
 let video
 let poseNet
 let keypoints = new Array(NUM_JOINTS).fill(0)
-let skeleton = []
 
 let FRAME_BUFFER_SIZE = 5
 let frameBuffer = []
@@ -101,12 +92,9 @@ function setup() {
   video.size(width, height)
 
   poseNet = ml5.poseNet(video, 'single', onModelReady)
-
   poseNet.on('pose', onPoseUpdated)
 
   video.hide() // Hide the video element, and just show the canvas
-
-  // onolo.speak("Welcome! Time to start working out. Please select your workout on the right.")
 }
 
 function draw() {
@@ -182,7 +170,7 @@ function startWorkout() {
         " Your back should be striaght from neck to toes.")
     }
     detectType = type
-    detectDuration = duration
+    detectDuration = parseInt(duration)
     isWorkoutComplete = false
     console.log(detectType, detectDuration)
 
@@ -328,6 +316,10 @@ function onPoseUpdated(poses) {
     onolo.speak(spoken_message)
   }
 
+  if (detectType === 'side_plank') {
+    // TODO:
+  }
+
   if (detectType === 'pushup') {
     neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
 
@@ -403,11 +395,11 @@ function onPoseUpdated(poses) {
     }
     onolo.speak(spoken_message)
   }
+
+  if (detectType === 'crunch') {
+    // TODO:
+  }
 }
-
-
-
-
 
 function drawKeypoints() {
   if (keypoints[0] === 0) {
@@ -419,14 +411,5 @@ function drawKeypoints() {
       noStroke()
       ellipse(keypoint.position.x, keypoint.position.y, 10, 10)
     // }
-  }
-}
-
-function drawSkeleton() {
-  for (let bone of skeleton) {
-    let partA = bone[0]
-    let partB = bone[1]
-    stroke(255, 0, 0)
-    line(partA.position.x, partA.position.y, partB.position.x, partB.position.y)
   }
 }
