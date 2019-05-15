@@ -1,10 +1,8 @@
 let DEBUG = true
-let straight_back_up = 2
-let straight_back_down = 1
-let straight_leg_up = 10
-let straight_leg_down = .4
-let straight_arm = 50
-let straight_neck = 80
+let straight_neck = 50
+let crunch_back_up = 4
+let crunch_back_down = 0.1
+let crunch_leg = 2
 
 let VIDEO_WIDTH = 800
 let VIDEO_HEIGHT = 600
@@ -128,24 +126,7 @@ function onPoseUpdated(poses) {
   key_lankle = keypoints[JOINT_INDEX.LEFT_ANKLE]
   key_rankle = keypoints[JOINT_INDEX.RIGHT_ANKLE]
 
-  neck_pos = [
-    (key_lshoulder.position.x + key_rshoulder.position.x) / 2,
-    (key_lshoulder.position.y + key_rshoulder.position.y) / 2
-  ]
-
   if (DEBUG) {
-    if (
-      abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm ||
-      abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm
-    ) {
-      console.log(`|shoulder.x - elbow.x| > ${straight_arm} Right: ${abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm}, Left: ${abs(key_lshoulder.position.x - key_lelbow.position.x)}`)
-    }
-    if (
-      abs(key_relbow.position.x - key_rwrist.position.x) > straight_arm ||
-      abs(key_lelbow.position.x - key_lwrist.position.x) > straight_arm
-    ) {
-      console.log(`|elbow.x - wrist.x| > ${straight_arm} Right: ${key_relbow.position.x - key_rwrist.position.x}, Left: ${key_lelbow.position.x - key_lwrist.position.x}`)
-    }
     if (
       abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
       abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck
@@ -153,20 +134,28 @@ function onPoseUpdated(poses) {
       console.log(`|nose.y - shoulder.y| > ${straight_neck} Right: ${abs(key_nose.position.y - key_rshoulder.position.y)}, Left: ${abs(key_nose.position.y - key_lshoulder.position.y)}`)
     }
     console.log(`|shoulder-hip slope| Right: ${abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x))}, Left: ${abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x))}`)
-    console.log(`|hip-knee slope| Right: ${abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x))}, Left: ${abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x))}`)
+    if (
+      abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > crunch_leg ||
+      abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > crunch_leg
+    ) {
+      console.log(`|hip-knee slope| > ${crunch_leg} Right: ${abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x))}, Left: ${abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x))}`)
+    }
+    if (
+      abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) > crunch_leg ||
+      abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) > crunch_leg
+    ) {
+      console.log(`|knee-ankle slope| > ${crunch_leg} Right: ${abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x))}, Left: ${abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x))}`)
+    }
   }
 
-  
-  if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
-      abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
-    (abs(key_lelbow.position.x - key_lwrist.position.x) <= straight_arm ||
-      abs(key_relbow.position.x - key_rwrist.position.x) <= straight_arm ) &&
-    (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+  if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
       abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
-    (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= straight_back_down ||
-      abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= straight_back_down) &&
-    (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= straight_leg_down ||
-      abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= straight_leg_down)
+    (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= crunch_back_down ||
+      abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= crunch_back_down) &&
+    (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= crunch_leg ||
+      abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= crunch_leg) &&
+    (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= crunch_leg ||
+      abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= crunch_leg)
     ) {
     console.log("detected down")
     if (state !== "down") { // change label
@@ -178,16 +167,14 @@ function onPoseUpdated(poses) {
     return
   }
 
-  if ((abs(key_lshoulder.position.x - key_lelbow.position.x) <= straight_arm ||
-      abs(key_rshoulder.position.x - key_relbow.position.x) <= straight_arm) &&
-    (abs(key_lelbow.position.x - key_lwrist.position.x) <= straight_arm ||
-      abs(key_relbow.position.x - key_rwrist.position.x) <= straight_arm ) &&
-    (abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+  if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
       abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
-    (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= straight_back_up ||
-       abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= straight_back_up) &&
-    (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= straight_leg_up ||
-      abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= straight_leg_up)
+    (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= crunch_back_up ||
+      abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= crunch_back_up) &&
+    (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= crunch_leg ||
+      abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= crunch_leg) &&
+    (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= crunch_leg ||
+      abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= crunch_leg)
     ) {
     console.log("detected up")
     if (state !== "up") { // change label

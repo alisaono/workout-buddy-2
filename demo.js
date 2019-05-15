@@ -126,9 +126,9 @@ function updateType() {
 
   if (newType === "front_plank" || newType === "side_plank") {
     if (newType === "front_plank") {
-      document.getElementById("sample-image").src = "Front Plank.jpg"
+      document.getElementById("sample-image").src = "images/Front Plank.jpg"
     } else {
-      document.getElementById("sample-image").src = "Side Plank.jpg"
+      document.getElementById("sample-image").src = "images/Side Plank.jpg"
     }
     document.getElementById("duration-input").style.display = "block"
     document.getElementById("reps-input").style.display = "none"
@@ -138,9 +138,9 @@ function updateType() {
 
   if (newType === "pushup" || newType === "crunch") {
     if (newType === "pushup") {
-      document.getElementById("sample-image").src = "Push-ups.gif"
+      document.getElementById("sample-image").src = "images/Push-ups.gif"
     } else {
-      document.getElementById("sample-image").src = "Crunches.gif"
+      document.getElementById("sample-image").src = "images/Crunches.gif"
     }
     document.getElementById("duration-input").style.display = "none"
     document.getElementById("reps-input").style.display = "block"
