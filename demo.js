@@ -31,6 +31,13 @@ let straight_leg_up = 10
 let straight_leg_down = .4
 let straight_arm = 50
 let straight_neck = 80
+let crunch_neck = 50
+let crunch_back_up = 4
+let crunch_back_down = 2
+let crunch_leg = 4
+let side_straight_arm = 30
+let side_straight_neck = 100
+let side_staight_body = 5
 
 let currTime = 0 // ms
 let currCount = 0 // reps
@@ -163,11 +170,11 @@ function startWorkout() {
     if (type === "front_plank") {
       onolo.speak("You have chosen Front Plank. Please position yourself like the one in the photo." +
         "Arms should be shoulder length apart, upper arm should be vertical and forearm horizontal on " +
-        " the floor, making a right angle. Your back should be striaght from neck to toes.")
+        " the floor, making a right angle. Your back should be straight from neck to toes.")
     } else {
       onolo.speak("You have chosen Side Plank. Please position yourself like the one in the photo." +
         " Your arms should be straight, one holding your body up and the other reaching towards the sky." +
-        " Your back should be striaght from neck to toes.")
+        " Your back should be straight from neck to toes.")
     }
     detectType = type
     detectDuration = parseInt(duration)
@@ -186,7 +193,7 @@ function startWorkout() {
     }
     if (type === "pushup") {
       onolo.speak("You have chosen Pushup. Please position yourself like the one in the photo. Start in the down position please." +
-        " Your arms should be bent and shoulder length apart, legs and back straight and head looking striaght down." +
+        " Your arms should be bent and shoulder length apart, legs and back straight and head looking straight down." +
         " For the up position, please have arms straight out in front of you and for the down position, just lower your body to" +
         " the ground while only bending your arms.")
     } else {
@@ -291,15 +298,15 @@ function onPoseUpdated(poses) {
     if(abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm && abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm){
       message.push("align your shoulders with elbows")
     }
-    if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
+    if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck &&
       abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck){
       message.push("lower your head")
     }
-    if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > straight_back ||
+    if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > straight_back &&
       abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > straight_back) {
       message.push("lower your hips")
     }
-    if (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 0.2 ||
+    if (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 0.2 &&
       abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 0.2) {
       message.push("straighten your legs")
     }
@@ -317,7 +324,55 @@ function onPoseUpdated(poses) {
   }
 
   if (detectType === 'side_plank') {
-    // TODO:
+    if (abs(key_lshoulder.position.x - key_lelbow.position.x) <= side_straight_arm &&
+        abs(key_rshoulder.position.x - key_relbow.position.x) <= side_straight_arm &&
+        abs(key_lelbow.position.x - key_lwrist.position.x) <= side_straight_arm &&
+        abs(key_relbow.position.x - key_rwrist.position.x) <= side_straight_arm &&
+        abs(key_nose.position.y - key_lshoulder.position.y) <= side_straight_neck &&
+        abs(key_nose.position.y - key_rshoulder.position.y) <= side_straight_neck &&
+        (abs((neck_pos[1] - key_rknee.position.y) / (neck_pos[0] - key_rknee.position.x)) <= side_staight_body ||
+        abs((neck_pos[1] - key_lknee.position.y) / (neck_pos[0] - key_lknee.position.x)) <= side_staight_body)
+      ) {
+      startTimer()
+      if (currTime > (detectDuration * 1000)) {
+        isWorkoutComplete = true
+        stopTimer()
+        onolo.speak("Good job! You have done " + detectDuration + " seconds of side plank.")
+      }
+      return
+    }
+
+    stopTimer()
+    message = []
+    if (
+      abs(key_lshoulder.position.x - key_lelbow.position.x) > side_straight_arm ||
+      abs(key_rshoulder.position.x - key_relbow.position.x) > side_straight_arm ||
+      abs(key_lelbow.position.x - key_lwrist.position.x) > side_straight_arm ||
+      abs(key_relbow.position.x - key_rwrist.position.x) > side_straight_arm
+    ) {
+      message.push("straighten your arms")
+    }
+    if (
+      abs(key_nose.position.y - key_lshoulder.position.y) > side_straight_neck ||
+      abs(key_nose.position.y - key_rshoulder.position.y) > side_straight_neck
+    ) {
+      message.push("straighten your neck")
+    }
+    if (abs((neck_pos[1] - key_rknee.position.y) / (neck_pos[0] - key_rknee.position.x)) > side_staight_body &&
+      abs((neck_pos[1] - key_lknee.position.y) / (neck_pos[0] - key_lknee.position.x)) > side_staight_body) {
+      message.push("straighten your back")
+    }
+
+    spoken_message = ""
+    if (message.length === 1) {
+      spoken_message += message[0]
+    } else if (message.length > 1) {
+      for (let i = 0; i < message.length - 1; i++) {
+        spoken_message += message[i] + ", "
+      }
+      spoken_message += "and " + message[message.length - 1]
+    }
+    onolo.speak(spoken_message)
   }
 
   if (detectType === 'pushup') {
@@ -366,19 +421,19 @@ function onPoseUpdated(poses) {
 
     message = []
     if (
-      abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm ||
+      abs(key_lshoulder.position.x - key_lelbow.position.x) > straight_arm &&
       abs(key_rshoulder.position.x - key_relbow.position.x) > straight_arm
     ) {
       message.push("align your shoulders with elbows")
     }
     if (
-      abs(key_relbow.position.x - key_rwrist.position.x) > straight_arm ||
+      abs(key_relbow.position.x - key_rwrist.position.x) > straight_arm &&
       abs(key_lelbow.position.x - key_lwrist.position.x) > straight_arm
     ) {
       message.push("lower your elbows")
     }
     if (
-      abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
+      abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck &&
       abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck
     ) {
       message.push("lower your head")
@@ -397,7 +452,69 @@ function onPoseUpdated(poses) {
   }
 
   if (detectType === 'crunch') {
-    // TODO:
+    if ((abs(key_nose.position.y - key_lshoulder.position.y) <= crunch_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= crunch_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= crunch_back_down ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= crunch_back_down) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= crunch_leg ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= crunch_leg) &&
+      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= crunch_leg ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= crunch_leg)
+      ) {
+      console.log(`from ${state} to down`)
+      state = "down"
+      return
+    }
+
+    if ((abs(key_nose.position.y - key_lshoulder.position.y) >= crunch_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) >= crunch_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= crunch_back_up ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= crunch_back_up) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= crunch_leg ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= crunch_leg) &&
+      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= crunch_leg ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= crunch_leg)
+      ) {
+      console.log(`from ${state} to up`)
+      if (state === "down") {
+        increCounter()
+        if (currCount < detectReps) {
+          onolo.speak(currCount)
+        } else {
+          isWorkoutComplete = true
+          onolo.speak("Good job! You have done " + detectReps + " crunches.")
+        }
+      }
+      state = "up"
+      return
+    }
+
+    message = []
+    if (
+      abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck &&
+      abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck
+    ) {
+      message.push("straighten your neck")
+    }
+    if (
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > crunch_leg &&
+      abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > crunch_leg) ||
+      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) > crunch_leg &&
+      abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) > crunch_leg)
+    ) {
+      message.push("keep your knees bent")
+    }
+
+    spoken_message = ""
+    if (message.length === 1) {
+      spoken_message += message[0]
+    } else if (message.length > 1) {
+      for (let i = 0; i < message.length - 1; i++) {
+        spoken_message += message[i] + ", "
+      }
+      spoken_message += "and " + message[message.length - 1]
+    }
+    onolo.speak(spoken_message)
   }
 }
 
