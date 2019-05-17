@@ -50,6 +50,11 @@ let straight_back = 0.4
 let straight_arm = 30
 let straight_neck = 50
 
+let crunch_back_up = 4
+let crunch_back_down = 2
+let crunch_leg = 4
+
+
 
 let video
 let poseNet
@@ -619,17 +624,69 @@ function onPoseUpdated(poses) {
     onolo.speak("Ready. Start.")
     sets_counter = 1
     neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
+    
     if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
         abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
-      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= 4 ||
-        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= 4) &&
-      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 2 ||
-        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 2) &&
-      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= 2 ||
-        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= 2)
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= crunch_back_up ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= crunch_back_up) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= crunch_leg ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= crunch_leg) &&
+      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= crunch_leg ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= crunch_leg)
+      ) {
+      //CRUNCH_DOWN = true
+      onolo.speak("Down.")
+    } else {
+      //say that you're not in position
+      message = []
+      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck) {
+        message.push("lower your head")
+        message.push("make sure your shoulders are at the same height")
+      }
+      if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > 0.1 ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > 0.1) {
+        message.push("please lay all the way down")
+      }
+      if(abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 2 ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 2) {
+        message.push("raise your knees to a comfortable bent height")
+      }
+      if(abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) > 2 ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) > 2){
+        message.push("lower your knees")
+      }
+
+      spoken_message = "You are not in position. "
+      if (message.length === 1) {
+        spoken_message += "Please " + message[0]
+      } else if (message.length > 1) {
+        spoken_message += "Please "
+        for (let i = 0; i < message.length - 1; i++) {
+          spoken_message += message[i] + ", "
+        }
+        spoken_message += "and " + message[message.length - 1]
+      }
+      onolo.speak(spoken_message)
+    }
+
+
+
+    if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
+        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= crunch_back_up ||
+        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= crunch_back_up) &&
+      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= crunch_leg ||
+        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= crunch_leg) &&
+      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= crunch_leg ||
+        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= crunch_leg)
       ) {
       //CRUNCH_UP = true
-    onolo.speak("Up.")
+    onolo.speak("Up. " + counter + " crunches.")
+      if(counter === 10) {
+        onolo.speak("You have done " + sets_counter + " sets of crunches.")
+        sets_counter += 1
+      }
     } else {
       //say that you're not in position
       message = []
@@ -665,54 +722,6 @@ function onPoseUpdated(poses) {
       onolo.speak(spoken_message)
     }
 
-    if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
-        abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
-      (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= 0.1 ||
-        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= 0.1) &&
-      (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= 2 ||
-        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) <= 2) &&
-      (abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) <= 2 ||
-        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) <= 2)
-      ) {
-      //CRUNCH_DOWN = true
-      onolo.speak("Down. " + counter + " crunches.")
-      if(counter === 10) {
-        onolo.speak("You have done " + sets_counter + " sets of crunches.")
-        sets_counter += 1
-      }
-    } else {
-      //say that you're not in position
-      message = []
-      if(abs(key_nose.position.y - key_lshoulder.position.y) > straight_neck ||
-        abs(key_nose.position.y - key_rshoulder.position.y) > straight_neck) {
-        message.push("lower your head")
-        message.push("make sure your shoulders are at the same height")
-      }
-      if(abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) > 0.1 ||
-        abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) > 0.1) {
-        message.push("please lay all the way down")
-      }
-      if(abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) > 2 ||
-        abs((key_lhip.position.y - key_lknee.position.y) / (key_lhip.position.x - key_lknee.position.x)) > 2) {
-        message.push("raise your knees to a comfortable bent height")
-      }
-      if(abs((key_rknee.position.y - key_rankle.position.y) / (key_rknee.position.x - key_rankle.position.x)) > 2 ||
-        abs((key_lknee.position.y - key_lankle.position.y) / (key_lknee.position.x - key_lankle.position.x)) > 2){
-        message.push("lower your knees")
-      }
-
-      spoken_message = "You are not in position. "
-      if (message.length === 1) {
-        spoken_message += "Please " + message[0]
-      } else if (message.length > 1) {
-        spoken_message += "Please "
-        for (let i = 0; i < message.length - 1; i++) {
-          spoken_message += message[i] + ", "
-        }
-        spoken_message += "and " + message[message.length - 1]
-      }
-      onolo.speak(spoken_message)
-    }
 
   }
 

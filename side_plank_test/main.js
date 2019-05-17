@@ -1,7 +1,7 @@
 let DEBUG = true
 let side_straight_arm = 30
-let side_straight_neck = 50
-let side_staight_body = 4
+let side_straight_neck = 100
+let side_staight_body = 5
 
 let VIDEO_WIDTH = 800
 let VIDEO_HEIGHT = 600

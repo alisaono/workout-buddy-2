@@ -1,8 +1,8 @@
 let DEBUG = true
 let straight_neck = 50
 let crunch_back_up = 4
-let crunch_back_down = 0.1
-let crunch_leg = 2
+let crunch_back_down = 2
+let crunch_leg = 4
 
 let VIDEO_WIDTH = 800
 let VIDEO_HEIGHT = 600
@@ -167,8 +167,8 @@ function onPoseUpdated(poses) {
     return
   }
 
-  if ((abs(key_nose.position.y - key_lshoulder.position.y) <= straight_neck ||
-      abs(key_nose.position.y - key_rshoulder.position.y) <= straight_neck) &&
+  if ((abs(key_nose.position.y - key_lshoulder.position.y) >= straight_neck ||
+      abs(key_nose.position.y - key_rshoulder.position.y) >= straight_neck) &&
     (abs((key_rshoulder.position.y - key_rhip.position.y) / (key_rshoulder.position.x - key_rhip.position.x)) <= crunch_back_up ||
       abs((key_lshoulder.position.y - key_lhip.position.y) / (key_lshoulder.position.x - key_lhip.position.x)) <= crunch_back_up) &&
     (abs((key_rhip.position.y - key_rknee.position.y) / (key_rhip.position.x - key_rknee.position.x)) <= crunch_leg ||
