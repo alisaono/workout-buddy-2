@@ -324,6 +324,7 @@ function onPoseUpdated(poses) {
   }
 
   if (detectType === 'side_plank') {
+  	neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
     if (abs(key_lshoulder.position.x - key_lelbow.position.x) <= side_straight_arm &&
         abs(key_rshoulder.position.x - key_relbow.position.x) <= side_straight_arm &&
         abs(key_lelbow.position.x - key_lwrist.position.x) <= side_straight_arm &&
@@ -358,6 +359,7 @@ function onPoseUpdated(poses) {
     ) {
       message.push("straighten your neck")
     }
+    neck_pos = [(key_lshoulder.position.x + key_rshoulder.position.x) / 2, (key_lshoulder.position.y + key_rshoulder.position.y) / 2]
     if (abs((neck_pos[1] - key_rknee.position.y) / (neck_pos[0] - key_rknee.position.x)) > side_staight_body &&
       abs((neck_pos[1] - key_lknee.position.y) / (neck_pos[0] - key_lknee.position.x)) > side_staight_body) {
       message.push("straighten your back")
